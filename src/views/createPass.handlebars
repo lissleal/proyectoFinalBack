@@ -1,0 +1,19 @@
+<div className="descproducto">
+<h1>Restablecer Contraseña</h1>
+<hr>    
+        <p>Por favor, ingresa tu nueva contraseña para la cuenta asociada a {{email}}.</p>
+
+        <form action="/api/users/createPass/{{token}}" method="POST">
+            <input type="hidden" name="token" value="{{token}}">
+            <label for="password">Nueva Contraseña</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirmedPassword">Confirmar Nueva Contraseña</label>
+            <input type="password" id="confirmedPassword" name="confirmedPassword" required>
+
+            <button type="submit">Restablecer Contraseña</button>
+</div>
+<hr>
+<a href="/inicio"><h2>Volver al inicio</h2></a>
+
+<link rel="stylesheet" type="text/css" href="/css/style.css" />

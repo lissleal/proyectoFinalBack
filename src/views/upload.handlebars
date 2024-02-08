@@ -1,0 +1,22 @@
+<div class="divProducto">
+  <h1>Subir Archivos</h1>
+  <h2>Usuario: {{user.nombre}}</h2>
+  <form
+    action="/api/users/:{{uid}}/documents"
+    method="post"
+    enctype="multipart/form-data"
+  >
+    <input type="hidden" name="uid" value="{{user._id}}" />
+
+    <label for="identificacion">Selecciona un archivo</label>
+    <input type="file" name="documents" id="identificacion" required />
+    <label for="compDomicilio">Selecciona un archivo</label>
+    <input type="file" name="documents" id="compDomicilio" required />
+    <label for="estadoCuenta">Selecciona un archivo</label>
+    <input type="file" name="documents" id="estadoCuenta" required />
+    <button type="submit">Subir Archivo</button>
+  </form>
+
+</div>
+
+<link rel="stylesheet" type="text/css" href="/css/style.css" />

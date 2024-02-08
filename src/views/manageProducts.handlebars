@@ -1,0 +1,99 @@
+<nav>
+  <div class="logo"></div>
+  <p>Universo de Páginas</p>
+  <ul>
+    <li>
+      <a href="/inicio">Inicio</a>
+    </li>
+    <li>
+      <a href="/api/products">Productos</a>
+    </li>
+    <li>
+      <a href="/api/users/profile">Usuario</a>
+    </li>
+    <li>
+      <a href="/api/users/logout">Cerrar sesión</a>
+    </li>
+  </ul>
+</nav>
+<main>
+  <h1>Lista de Productos en base de datos</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Thumbnail</th>
+        <th>Dueño</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+        <tr>
+          <form
+            action="/api/products/update/{{this._id}}?_method=PUT"
+            method="POST"
+          >
+            <input type="hidden" name="_method" value="PUT" />
+            <td><input type="text" name="name" value="{{this.name}}" /></td>
+            <td><input
+                type="text"
+                name="description"
+                value="{{this.description}}"
+              /></td>
+            <td><input type="number" name="price" value="{{this.price}}" /></td>
+
+            <td><input type="number" name="stock" value="{{this.stock}}" /></td>
+            <td><input
+                type="text"
+                name="thumbnail"
+                value="{{this.thumbnail}}"
+              /></td>
+            <td><input type="text" name="owner" value="{{this.owner}}" /></td>
+            <td>
+              <button type="submit">Actualizar</button>
+            </td>
+          </form>
+          <form
+            action="/api/products/delete/{{this._id}}?_method=DELETE"
+            method="POST"
+          >
+            <input type="hidden" name="_method" value="DELETE" />
+            <td>
+              <button type="submit">Eliminar</button>
+            </td>
+
+          </form>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+</main>
+<footer>
+  <p>Lissett Leal 2024</p>
+  <div class="contactos">
+    <a href="https://github.com/lissleal">
+      <i class="fa-brands fa-github"></i>
+    </a>
+    <a href="">
+      <i class="fa-solid fa-briefcase"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/lissett-leal/">
+      <i class="fa-brands fa-linkedin"></i>
+    </a>
+  </div>
+  <p>Realizado con fines educativos</p>
+</footer>
+
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>

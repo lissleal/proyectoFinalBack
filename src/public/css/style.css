@@ -1,0 +1,215 @@
+@import url("https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: content-box;
+  font-family: andika, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:visited {
+  text-emphasis: none;
+}
+h1 {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 10px;
+  margin: 10px;
+  background-color: #2ca1a772;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 5px;
+  background-color: #2ca1a772;
+}
+
+.headerMain {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  color: white;
+}
+
+.logo {
+  height: 80px;
+  width: 80px;
+  background-image: url(../img/logoSinFondo.png);
+  background-position: center;
+  background-size: cover;
+}
+
+body {
+  background-image: url(../img/fondoEstrellas.jpg);
+
+  background-size: contain;
+  color: rgb(255, 255, 255);
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  background-color: #5c3e80;
+  color: white;
+  padding: 10px;
+}
+
+nav ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #5c3e80;
+  color: white;
+  padding: 10px 50px;
+}
+
+.contactos {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+}
+
+li {
+  list-style-type: none;
+}
+
+nav a {
+  color: white;
+}
+
+.inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 20px;
+}
+
+.productsContain {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+  padding: 20px;
+}
+.divProducto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  padding: 5px;
+  background-color: #2ca1a772;
+  border-radius: 10px;
+}
+
+.productDescription {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.productDetail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  background-color: #2ca1a772;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+}
+img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+#realTimeProducts {
+  min-width: 80vw;
+}
+
+.item_navbar {
+  display: inline-block;
+  padding: 10px;
+  margin: 10px;
+}
+
+.boton {
+  background-color: #5c3e80;
+  box-shadow: 0px 0px 5px 0px #5c3e80;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.boton:hover {
+  background-color: #4d336c;
+  box-shadow: 0px 0px 5px 0px #5c3e80;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 60vh;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background-color: #5c3e8081;
+  border-radius: 10px;
+}
+
+i {
+  color: white;
+  font-size: 20px;
+}
+
+.containerBotones {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+}
+
+.botonesCantidad {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
