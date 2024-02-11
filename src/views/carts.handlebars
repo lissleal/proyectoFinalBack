@@ -1,32 +1,62 @@
-<nav>
+<header>
   <div class="logo"></div>
-  <p>Universo de Páginas</p>
-  <ul>
-    <li>
-      <a href="/inicio">Inicio</a>
-    </li>
-    <li>
-      <a href="/api/products">Productos</a>
-    </li>
-    <li>
-      <a href="/api/users/profile">Usuario</a>
-    </li>
-    <li>
-      <a href="/api/users/logout">Cerrar sesión</a>
-    </li>
-    <li>
-      <a href="/api/carts">Cart</a>
-    </li>
-  </ul>
-</nav>
+  <p class="tituloPagina">Universo de Páginas</p>
+  <nav>
+    <ul>
+      {{#if user}}
+        <li>
+          <a href="/inicio">Inicio</a>
+        </li>
+        <li>
+          <a href="/api/products">Productos</a>
+        </li>
+        <li>
+          <a href="/api/users/profile">Usuario</a>
+        </li>
+        <li>
+          <a href="/api/users/logout">Cerrar sesión</a>
+        </li>
+        <li>
+          <a href="/api/carts/{{cartId}}"><i
+              class="fa-solid fa-cart-shopping"
+            ></i></a>
+        </li>
+      {{else}}
+        <a href="/login" class="login">
+          <p>Login</p>
+        </a>
+      {{/if}}
+    </ul>
+  </nav>
+</header>
 
-{{#if cart}}
-  {{#each cart}}
-    <p>Id: {{this.productId}} - Cantidad: {{this.quantity}} Uds</p>
-  {{/each}}
-{{else}}
-  <p>El carrito está vacío.</p>
-{{/if}}
+<main>
+  <h1>Carrito de Compras</h1>
+  {{#if cart}}
+    <div class="tabla">
+      {{#each products}}
+        <div class="filasTabla">
+          <p>{{this.name}}</p>
+          <p>{{this.quantity}} Uds </p>
+          <p>{{this.price}} CLP </p>
+          <p>{{this.total}} CLP </p>
+        </div>
+      {{/each}}
+    </div>
+
+  {{else}}
+    <p>El carrito está vacío.</p>
+  {{/if}}
+
+  <form method="post" action="/api/carts/{{cartId}}/purchase">
+    <label for="direccion">Dirección de Entrega</label>
+    <input type="direccion" name="direccion" required />
+    <label for="telefono">Teléfono</label>
+    <input type="telefono" name="telefono" required />
+    <button type="submit" class="boton">Finalizar Compra</button>
+  </form>
+
+</main>
 
 <footer>
   <p>Lissett Leal 2024</p>

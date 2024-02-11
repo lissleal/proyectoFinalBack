@@ -7,13 +7,16 @@ class UserService {
 
     addUser = async (user) => {
         try {
+            // console.log("entre al adduser en userservice");
             const newUser = await this.userRepository.addUser(user);
+            // console.log("New user en userservice:", newUser);
             if (!newUser) {
                 return "Usuario no agregado";
             }
             return newUser;
         } catch (error) {
-            req.logger.error("Error al agregar usuario: ", error);
+            console.log("Error al agregar usuario en userservice:", error);
+            // req.logger.error("Error al agregar usuario: ", error);
             return error;
         }
     }

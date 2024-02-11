@@ -52,10 +52,10 @@ app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 //Middleware de logger:
 app.use(loggerMiddleware)
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log(`${req.method} ${req.url}`);
+//     next();
+// });
 
 //Estructura handlebars
 app.engine("handlebars", engine())
@@ -67,6 +67,8 @@ app.use("/", express.static(__dirname + "/public"))
 
 //Rutas para vistas:
 app.use("/", ViewsRouter)
+app.use("/api/products/css", express.static(__dirname + "/public/css"))
+app.use("/api/products/img", express.static(__dirname + "/public/img"))
 
 //Rutas para CRUD:
 app.use("/api/users", UserRouter)

@@ -35,7 +35,9 @@ UserRouter.get("/githubcallback", passport.authenticate("github", { failureRedir
 UserRouter.get("/profile", async (req, res) => {
     try {
         let user = req.session.user
-        console.log("El role es: ", user.role)
+        let cartId = req.session.cartId;
+
+        // console.log("El role es: ", user.role)
 
         if (!user || !user.email) {
             return res.redirect("/login")
@@ -47,9 +49,9 @@ UserRouter.get("/profile", async (req, res) => {
         }
         let isAdmin = false;
         let isAuthorized = false;
-        console.log("El isAdmin es: ", isAdmin)
-        console.log("El isAuthorized es: ", isAuthorized)
-        console.log("El role es: ", user.role)
+        // console.log("El isAdmin es: ", isAdmin)
+        // console.log("El isAuthorized es: ", isAuthorized)
+        // console.log("El role es: ", user.role)
 
         if (user.role === "admin") {
             isAdmin = true;
@@ -59,14 +61,15 @@ UserRouter.get("/profile", async (req, res) => {
             isAuthorized = true;
         }
 
-        console.log("El isAdmin es: ", isAdmin)
-        console.log("El isAuthorized es: ", isAuthorized)
+        // console.log("El isAdmin es: ", isAdmin)
+        // console.log("El isAuthorized es: ", isAuthorized)
 
         return res.render("profile", {
             title: "Perfil de Usuario",
             user: userData,
             isAdmin: isAdmin,
-            isAuthorized: isAuthorized
+            isAuthorized: isAuthorized,
+            cartId: cartId
         })
     }
     catch (error) {
@@ -78,6 +81,8 @@ UserRouter.get("/profile", async (req, res) => {
 UserRouter.get("/current", async (req, res) => {
     try {
         let user = req.session.user
+        let cartId = req.session.cartId;
+
 
         if (!user || user == null || user == undefined) {
             req.logger.error("No se encontró el usuario")
@@ -98,6 +103,7 @@ UserRouter.get("/current", async (req, res) => {
         return res.render("current", {
             title: "Perfil de Usuario",
             user: userSafe,
+            cartId: cartId
 
         })
     }

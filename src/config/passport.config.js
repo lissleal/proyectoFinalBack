@@ -9,13 +9,13 @@ const userService = new UserService();
 
 const initializePassport = () => {
     passport.use("register", new LocalStrategy({ passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
-        console.log("Registering user:", req.body);
+        // console.log("Registering user:", req.body);
 
         try {
             const { name, surname, email, role } = req.body;
             // console.log(`User data: ${name}, ${surname}, ${email}, ${role}`);
             let user = await userService.findEmail({ email: username });
-            console.log(`User en passport.use /register: ${user}`);
+            // console.log(`User en passport.use /register: ${user}`);
             if (user) {
                 console.log("User already exists");
                 return done(null, false, { message: "User already exists" });
@@ -27,12 +27,13 @@ const initializePassport = () => {
             let result = await userService.addUser(newUser);
             return done(null, result);
         } catch (error) {
-            console.log("Error registering user:", error);
+            // console.log("Error registering user:", error);
             return done("Error getting the user", error);
         }
     }))
 
     passport.serializeUser((user, done) => {
+        // console.log("Serializing user:", user);
         done(null, user._id);
     })
     passport.deserializeUser(async (id, done) => {

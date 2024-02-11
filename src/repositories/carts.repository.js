@@ -47,13 +47,13 @@ class CartRepository extends cartModel {
 
     //Funciones para productos dentro del carrito
 
-    addProductInCart = async (idCart, idProd) => {
+    addProductInCart = async (idCart, idProd, quantity) => {
         try {
             const filter = { _id: idCart };
 
             const update = {
                 $setOnInsert: { _id: idCart },
-                $push: { products: [{ productId: idProd, quantity: 1 }] },
+                $push: { products: [{ productId: idProd, quantity }] },
             };
 
             const options = { upsert: true, new: true };
@@ -76,14 +76,16 @@ class CartRepository extends cartModel {
             if (!cart) {
                 return "Cart not found";
             }
-            const product = await productModel.findById(idProd);
-            if (!product) {
-                return "Product not found";
-            }
+            // const product = await productModel.findById(idProd);
 
-            const existingProduct = Array.isArray(cart.products) && cart.products.some((product) => product.productId === idProd);
+            // if (!product) {
+            //     return "Product not found";
+            // }
+            const getProductsInCart = cart.products;
+
+            const existingProduct = getProductsInCart.find((product) => product.productId.toString() === idProd.toString());
             if (existingProduct) {
-                return product;
+                return existingProduct;
             } else {
                 return null;
             }
@@ -196,7 +198,8 @@ class CartRepository extends cartModel {
 
                 if (!productToBuy || productToBuy.stock < product.quantity) {
                     productsNotAvailable.push(productToBuy);
-                    req.logger.error("Not enough stock for product: ", productToBuy);
+                    console.log("Not enough stock for product: ", productToBuy);
+                    // req.logger.error("Not enough stock for product: ", productToBuy);
                 } else {
                     productsAvailable.push(productToBuy.name);
                     productToBuy.stock = productToBuy.stock - product.quantity;
@@ -219,6 +222,7 @@ class CartRepository extends cartModel {
             await ticket.save();
             //actualizar carrito dejando los que no pudieron comprarse
             cart.products = productsNotAvailable;
+            await cart.save();
 
             return { ticket: ticket, cart: cart };
         } catch (error) {

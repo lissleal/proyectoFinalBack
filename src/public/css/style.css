@@ -28,7 +28,15 @@ h2 {
   font-size: 18px;
   font-weight: 700;
   padding: 5px;
+  margin: 5px;
   background-color: #2ca1a772;
+}
+
+.tituloPagina {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 5px;
+  margin: 5px;
 }
 
 .headerMain {
@@ -56,20 +64,31 @@ body {
   text-align: center;
 }
 
-nav {
+header {
   display: flex;
-  align-items: center;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   background-color: #5c3e80;
   color: white;
-  padding: 10px;
+  padding: 10px 50px;
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
 }
 
 nav ul {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: end;
+  align-items: center;
   width: 100%;
+  gap: 10px;
+
   padding: 0;
   margin: 0;
 }
@@ -189,9 +208,10 @@ form {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px;
+  padding: 5px;
   background-color: #5c3e8081;
   border-radius: 10px;
+  margin: 5px;
 }
 
 i {
@@ -212,4 +232,27 @@ i {
   gap: 10px;
   justify-content: center;
   align-items: center;
+}
+
+.tabla {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  background-color: #5c3e8081;
+  border-radius: 10px;
+  margin: 5px;
+}
+.filasTabla {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px 10px;
+  gap: 10px;
+}
+
+.tituloTabla {
+  background-color: #2ca1a772;
+  border-radius: 10px;
 }

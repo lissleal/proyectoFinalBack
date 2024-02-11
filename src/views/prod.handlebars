@@ -1,21 +1,36 @@
-<nav>
+<header>
   <div class="logo"></div>
-  <p>Universo de Páginas</p>
-  <ul>
-    <li>
-      <a href="/inicio">Inicio</a>
-    </li>
-    <li>
-      <a href="/api/products">Productos</a>
-    </li>
-    <li>
-      <a href="/api/users/profile">Usuario</a>
-    </li>
-    <li>
-      <a href="/api/users/logout">Cerrar sesión</a>
-    </li>
-  </ul>
-</nav>
+  <p class="tituloPagina">Universo de Páginas</p>
+  <nav>
+    <ul>
+      {{#if user}}
+        <li>
+          <a href="/inicio">Inicio</a>
+        </li>
+        <li>
+          <a href="/api/products">Productos</a>
+        </li>
+        <li>
+          <a href="/api/users/profile">Usuario</a>
+        </li>
+        <li>
+          <a href="/api/users/logout">Cerrar sesión</a>
+        </li>
+        <li>
+
+          <a href="/api/carts/{{cartId}}"><i
+              class="fa-solid fa-cart-shopping"
+            ></i></a>
+        </li>
+      {{else}}
+        <a href="/login" class="login">
+          <p>Login</p>
+        </a>
+      {{/if}}
+    </ul>
+  </nav>
+</header>
+
 <main>
   <h1>{{product.name}}</h1>
 
@@ -27,6 +42,7 @@
       <p>Precio: {{product.price}} </p>
       <p>Categoria: {{product.category}} </p>
       <p>Stock: {{product.stock}} </p>
+      <p>Carrito: {{cartId}}</p>
 
       {{#if user}}
 
@@ -67,16 +83,20 @@
   referrerpolicy="no-referrer"
 />
 <script>
-  let incrementoCantidad = document.getElementById("incrementoCantidad"); let
-  disminuyeCantidad = document.getElementById("disminuyeCantidad"); let cantidad
-  = document.getElementById("cantidad"); let addToCart =
-  document.getElementById("addToCart"); let cantidadProducto = 0;
+  document.addEventListener('DOMContentLoaded', () => { let incrementoCantidad =
+  document.getElementById("incrementoCantidad"); let disminuyeCantidad =
+  document.getElementById("disminuyeCantidad"); let cantidad =
+  document.getElementById("cantidad"); let cartId = "{{cartId}}"; let addToCart
+  = document.getElementById("addToCart"); let cantidadProducto = 0;
   incrementoCantidad.addEventListener("click", () => { if (cantidadProducto <
-  {{product.stock}}){ cantidadProducto++; cantidad.textContent =
+  {{product.stock}}) { cantidadProducto++; cantidad.textContent =
   cantidadProducto; } }); disminuyeCantidad.addEventListener("click", () => { if
   (cantidadProducto > 0) { cantidadProducto--; cantidad.textContent =
   cantidadProducto; } }); addToCart.addEventListener("click", () => { const
-  productId = "{{product._id}}"; const quantity = cantidadProducto; const cart =
-  "{{user.cart}}"; console.log(productId, quantity, cart); });
-
+  productId = "{{product._id}}"; const quantity = cantidadProducto;
+  fetch(`/api/carts/${cartId}/products/${productId}`, { method: "POST", headers:
+  { "Content-Type": "application/json" }, body: JSON.stringify({ quantity,
+  productId }), }) .then((res) => res.json()) .then((data) => {
+  console.log(data); cantidadProducto = 0; cantidad.textContent =
+  cantidadProducto; }) .catch((err) => console.log(err)); }); });
 </script>

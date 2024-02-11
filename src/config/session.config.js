@@ -5,7 +5,7 @@ dotenv.config();
 const sessionConfig = {
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URL,
-        ttl: 600
+        ttl: 6000
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,

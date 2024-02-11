@@ -42,9 +42,9 @@ class CartService {
 
     //Funciones para productos dentro del carrito
 
-    addProductInCart = async (idCart, idProd) => {
+    addProductInCart = async (idCart, idProd, quantity) => {
         try {
-            const newProduct = await this.cartRepository.addProductInCart(idCart, idProd);
+            const newProduct = await this.cartRepository.addProductInCart(idCart, idProd, quantity);
             if (!newProduct) {
                 return null;
             }
@@ -83,7 +83,10 @@ class CartService {
 
     updateQuantityOfProduct = async (idCart, idProd, quantity) => {
         try {
-            const updateQuantity = await this.cartRepository.updateQuantityOfProduct(idCart, idProd, quantity);
+            const prevProduct = await this.cartRepository.existProductInCart(idCart, idProd);
+            let prevQuantity = prevProduct.quantity;
+            let newQuantity = prevQuantity + quantity;
+            const updateQuantity = await this.cartRepository.updateQuantityOfProduct(idCart, idProd, newQuantity);
             if (!updateQuantity) {
                 return null;
             }
@@ -111,9 +114,11 @@ class CartService {
     purchaseCart = async (idCart) => {
         try {
             const purchase = await this.cartRepository.purchaseCart(idCart);
+            // console.log("El purchase en cartservice es", purchase);
             if (!purchase) {
                 return null;
             }
+            return purchase;
         } catch (error) {
             console.error('Error:', error);
             return null;

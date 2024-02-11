@@ -2,7 +2,7 @@ import ProductService from '../services/ProductService.js';
 import ProductDTO from '../dao/DTOs/product.dto.js';
 import UserDTO from '../dao/DTOs/user.dto.js';
 const productService = new ProductService();
-import CustomError from '../config/customError.js';
+// import CustomError from '../config/customError.js';
 import mailer from "../config/nodemailer.js";
 
 const { sendMail } = mailer;
@@ -22,25 +22,30 @@ export async function getProducts(req, res, next) {
         let allProducts = await productService.getProducts(limit, page, sort, query);
 
         if (!allProducts) {
-            return next(
-                CustomError.createError({
-                    statusCode: 404,
-                    causeKey: "PRODUCTS_NOT_FOUND",
-                    message: "No se encontraron productos"
-                })
-            )
+            console.log("No se encontraron productos")
+
+            // return next(
+            //     CustomError.createError({
+            //         statusCode: 404,
+            //         causeKey: "PRODUCTS_NOT_FOUND",
+            //         message: "No se encontraron productos"
+            //     })
+            // )
         }
 
         allProducts = allProducts.docs.map(product => new ProductDTO(product))
+
         req.logger.info("El usuario es:", req.session.user)
-        let { name, email, role } = req.session.user
+        let user = req.session.user
+        let { name, email, role } = user
+        let cartId = req.session.cartId;
         const userData = new UserDTO({ name, email, role })
-        req.logger.info("El userData es:", userData)
 
         res.render("home", {
             title: "Segunda Pre Entrega",
             products: allProducts,
-            user: userData
+            user: userData,
+            cartId: cartId
 
         })
     } catch (error) {
@@ -51,32 +56,35 @@ export async function getProducts(req, res, next) {
 
 export async function getProductById(req, res, next) {
     try {
-        // const prodId = req.body.prodId
+        let user = req.session.user
+        if (!user) {
+            return res.redirect("/login")
+
+        }
         const prodId = req.body.prodId || req.params.pid;
-        const user = req.user;
-        const cartId = user.cart.cart._id;
-        console.log("El prodId es:", prodId)
-        console.log("El req.body es:", req.body)
-        console.log("El req.params es:", req.params)
-        console.log("El user es:", user)
-        console.log("El cartId es:", cartId)
+        let { name, email, role } = user
+        let cartId = req.session.cartId;
+        const userData = new UserDTO({ name, email, role })
 
         const prod = await productService.getProductById(prodId);
 
         if (!prod) {
-            return next(
-                CustomError.createError({
-                    statusCode: 404,
-                    causeKey: "PRODUCT_NOT_FOUND",
-                    message: "No se encontró el producto"
-                })
-            )
+            console.log("No se encontró el producto")
+            // return next(
+            //     CustomError.createError({
+            //         statusCode: 404,
+            //         causeKey: "PRODUCT_NOT_FOUND",
+            //         message: "No se encontró el producto"
+            //     })
+            // )
         }
         const productDetail = prod.toObject();
         res.render("prod", {
             title: "Detalle de Producto",
             user,
-            product: productDetail
+            product: productDetail,
+            userData: userData,
+            cartId: cartId
         })
     } catch (error) {
         console.error('Error al obtener el producto:', error);
@@ -92,18 +100,19 @@ export async function createProduct(req, res, next) {
             req.logger.debug("El body es:", req.body)
 
             if (!productData.name || !productData.description || !productData.price || !productData.category || !productData.stock || !productData.thumbnail) {
-                return next(
-                    CustomError.createError({
-                        statusCode: 404,
-                        causeKey: "PRODUCT_NOT_CREATED",
-                        message: "El producto no se ha podido crear"
-                    })
-                )
+                console.log("El producto no se ha podido crear")
+                // return next(
+                //     CustomError.createError({
+                //         statusCode: 404,
+                //         causeKey: "PRODUCT_NOT_CREATED",
+                //         message: "El producto no se ha podido crear"
+                //     })
+                // )
             }
             let result = await productService.addProduct(productData);
-            res.send({ result: "success", payload: result })
+            // res.send({ result: "success", payload: result })
 
-            // res.render(confirmedProduct, { title: "Producto creado", product: result })
+            res.render(confirmedProduct, { title: "Producto creado", product: result })
         }
     } catch (error) {
         console.error('Error al crear el producto:', error);
@@ -114,19 +123,21 @@ export async function createProduct(req, res, next) {
 export async function updateProduct(req, res, next) {
     try {
         let { pid } = req.params;
-        console.log("El pid es:", pid)
+        // console.log("El pid es:", pid)
 
         //esta bien llamado? esta diferente del de createProduct
         let productToReplace = req.body;
-        console.log("El productToReplace es:", productToReplace)
+        // console.log("El productToReplace es:", productToReplace)
         if (!productToReplace.name || !productToReplace.description || !productToReplace.price || !productToReplace.category || !productToReplace.stock || !productToReplace.thumbnail) {
-            return next(
-                CustomError.createError({
-                    statusCode: 404,
-                    causeKey: "PRODUCT_NOT_UPDATED",
-                    message: "El producto no se ha podido actualizar"
-                })
-            )
+            console.log("El producto no se ha podido actualizar")
+
+            // return next(
+            //     CustomError.createError({
+            //         statusCode: 404,
+            //         causeKey: "PRODUCT_NOT_UPDATED",
+            //         message: "El producto no se ha podido actualizar"
+            //     })
+            // )
         }
         let result = await productService.updateProduct(pid, productToReplace);
         res.send({ result: "success", payload: result })
@@ -163,13 +174,14 @@ export async function deleteProduct(req, res, next) {
         }
         sendMail(mailOptions);
         if (!result) {
-            return next(
-                CustomError.createError({
-                    statusCode: 404,
-                    causeKey: "PRODUCT_NOT_DELETED",
-                    message: "El producto no se ha podido eliminar"
-                })
-            )
+            console.log("El producto no se ha podido eliminar")
+            // return next(
+            //     CustomError.createError({
+            //         statusCode: 404,
+            //         causeKey: "PRODUCT_NOT_DELETED",
+            //         message: "El producto no se ha podido eliminar"
+            //     })
+            // )
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
@@ -188,13 +200,14 @@ export async function manageProducts(req, res, next) {
         // console.log("El allProducts es:", allProducts)
 
         if (!allProducts) {
-            return next(
-                CustomError.createError({
-                    statusCode: 404,
-                    causeKey: "PRODUCTS_NOT_FOUND",
-                    message: "No se encontraron productos"
-                })
-            )
+            console.log("No se encontraron productos")
+            // return next(
+            //     CustomError.createError({
+            //         statusCode: 404,
+            //         causeKey: "PRODUCTS_NOT_FOUND",
+            //         message: "No se encontraron productos"
+            //     })
+            // )
         }
         let isAdmin;
         let isAuthorized;
