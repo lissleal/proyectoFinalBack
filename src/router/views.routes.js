@@ -10,14 +10,20 @@ const ViewsRouter = express.Router()
 
 ViewsRouter.get("/inicio", async (req, res) => {
     const cartId = req.session.cartId
+    const user = req.session.user || null
     res.render("inicio", {
         title: "App de compras",
-        cartId: cartId
+        cartId: cartId,
+        user: user
     })
 })
 ViewsRouter.get("/register", (req, res) => {
+    const cartId = req.session.cartId || null
+    const user = req.session.user || null
     res.render("register", {
-        title: "Registro de Usuario"
+        title: "Registro de Usuario",
+        cartId: cartId,
+        user: user
     })
 })
 
@@ -46,10 +52,12 @@ ViewsRouter.get("/reset", (req, res) => {
 
 ViewsRouter.get("/addProducts", authorizeRole(["admin", "premium"]), (req, res) => {
     const cartId = req.session.cartId
+    const user = req.session.user || null
 
     res.render("addProducts", {
         title: "Agregar Productos",
-        cartId: cartId
+        cartId: cartId,
+        user: user
     })
 })
 
@@ -78,10 +86,12 @@ ViewsRouter.get("/confirmedProducts", (req, res) => {
 
 ViewsRouter.get("/documents", (req, res) => {
     const cartId = req.session.cartId
+    const user = req.session.user || null
 
     res.render("upload", {
         title: "Subir Documentos",
-        cartId: cartId
+        cartId: cartId,
+        user: user
     })
 })
 

@@ -13,10 +13,6 @@ import methodOverride from 'method-override';
 import specs from "./config/swagger.config.js";
 import swaggerUiExpress from "swagger-ui-express";
 
-
-
-
-
 // Variables de entorno
 dotenv.config();
 
@@ -25,7 +21,6 @@ import ViewsRouter from "./router/views.routes.js";
 import productsRouter from "./router/products.routes.js";
 import cartsRouter from "./router/carts.routes.js";
 import UserRouter from "./router/user.routes.js";
-
 
 //Creación de la aplicación Express y servidor HTTP:
 const app = express()
@@ -49,13 +44,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'));
 app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
-
 //Middleware de logger:
 app.use(loggerMiddleware)
-// app.use((req, res, next) => {
-//     console.log(`${req.method} ${req.url}`);
-//     next();
-// });
 
 //Estructura handlebars
 app.engine("handlebars", engine())

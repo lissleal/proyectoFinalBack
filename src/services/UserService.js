@@ -1,4 +1,5 @@
 import UserRepository from "../repositories/users.repository.js";
+import logger from "../logger.js";
 
 class UserService {
     constructor() {
@@ -7,16 +8,13 @@ class UserService {
 
     addUser = async (user) => {
         try {
-            // console.log("entre al adduser en userservice");
             const newUser = await this.userRepository.addUser(user);
-            // console.log("New user en userservice:", newUser);
             if (!newUser) {
                 return "Usuario no agregado";
             }
             return newUser;
         } catch (error) {
-            console.log("Error al agregar usuario en userservice:", error);
-            // req.logger.error("Error al agregar usuario: ", error);
+            req.logger.error("Error al agregar usuario: ", error);
             return error;
         }
     }

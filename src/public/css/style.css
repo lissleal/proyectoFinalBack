@@ -58,7 +58,6 @@ h2 {
 
 body {
   background-image: url(../img/fondoEstrellas.jpg);
-
   background-size: contain;
   color: rgb(255, 255, 255);
   text-align: center;
@@ -201,14 +200,14 @@ main {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  min-height: 60vh;
+  min-height: 65vh;
 }
 
 form {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 5px;
+  padding: 10px;
   background-color: #5c3e8081;
   border-radius: 10px;
   margin: 5px;

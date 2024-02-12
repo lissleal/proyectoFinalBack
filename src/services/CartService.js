@@ -111,10 +111,9 @@ class CartService {
     }
 
     //Funciones para finalizar la compra
-    purchaseCart = async (idCart) => {
+    purchaseCart = async (idCart, deliveryData) => {
         try {
-            const purchase = await this.cartRepository.purchaseCart(idCart);
-            // console.log("El purchase en cartservice es", purchase);
+            const purchase = await this.cartRepository.purchaseCart(idCart, deliveryData);
             if (!purchase) {
                 return null;
             }

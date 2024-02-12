@@ -37,8 +37,6 @@ UserRouter.get("/profile", async (req, res) => {
         let user = req.session.user
         let cartId = req.session.cartId;
 
-        // console.log("El role es: ", user.role)
-
         if (!user || !user.email) {
             return res.redirect("/login")
         }
@@ -49,9 +47,6 @@ UserRouter.get("/profile", async (req, res) => {
         }
         let isAdmin = false;
         let isAuthorized = false;
-        // console.log("El isAdmin es: ", isAdmin)
-        // console.log("El isAuthorized es: ", isAuthorized)
-        // console.log("El role es: ", user.role)
 
         if (user.role === "admin") {
             isAdmin = true;
@@ -60,10 +55,6 @@ UserRouter.get("/profile", async (req, res) => {
             isAdmin = false;
             isAuthorized = true;
         }
-
-        // console.log("El isAdmin es: ", isAdmin)
-        // console.log("El isAuthorized es: ", isAuthorized)
-
         return res.render("profile", {
             title: "Perfil de Usuario",
             user: userData,
@@ -82,7 +73,6 @@ UserRouter.get("/current", async (req, res) => {
     try {
         let user = req.session.user
         let cartId = req.session.cartId;
-
 
         if (!user || user == null || user == undefined) {
             req.logger.error("No se encontró el usuario")
@@ -117,10 +107,8 @@ UserRouter.get("/allUsers", requestAllUsers)
 
 UserRouter.post("/request-password", requestPasswordReset)
 
-
 //ruta para vista para que el usuario cree una nueva contraseña
 UserRouter.get("/createPass/:token", renderPas)
-
 
 // Ruta para enviar correo de recuperacion de contraseña
 UserRouter.post("/createPass/:token", resetPassword)

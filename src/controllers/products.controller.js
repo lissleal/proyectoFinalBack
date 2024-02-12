@@ -2,7 +2,7 @@ import ProductService from '../services/ProductService.js';
 import ProductDTO from '../dao/DTOs/product.dto.js';
 import UserDTO from '../dao/DTOs/user.dto.js';
 const productService = new ProductService();
-// import CustomError from '../config/customError.js';
+import CustomError from '../config/customError.js';
 import mailer from "../config/nodemailer.js";
 
 const { sendMail } = mailer;
@@ -22,21 +22,30 @@ export async function getProducts(req, res, next) {
         let allProducts = await productService.getProducts(limit, page, sort, query);
 
         if (!allProducts) {
-            console.log("No se encontraron productos")
-
-            // return next(
-            //     CustomError.createError({
-            //         statusCode: 404,
-            //         causeKey: "PRODUCTS_NOT_FOUND",
-            //         message: "No se encontraron productos"
-            //     })
-            // )
+            return next(
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PRODUCTS_NOT_FOUND",
+                    message: "No se encontraron productos"
+                })
+            )
         }
 
         allProducts = allProducts.docs.map(product => new ProductDTO(product))
 
         req.logger.info("El usuario es:", req.session.user)
         let user = req.session.user
+        let isAdmin;
+        let isAuthorized;
+        if (!user) {
+            return res.redirect("/login")
+        }
+        if (user.role === "admin") {
+            isAdmin = true;
+        }
+        if (user.role === "admin" || user.role === "premium") {
+            isAuthorized = true;
+        }
         let { name, email, role } = user
         let cartId = req.session.cartId;
         const userData = new UserDTO({ name, email, role })
@@ -45,7 +54,9 @@ export async function getProducts(req, res, next) {
             title: "Segunda Pre Entrega",
             products: allProducts,
             user: userData,
-            cartId: cartId
+            cartId: cartId,
+            isAdmin,
+            isAuthorized
 
         })
     } catch (error) {
@@ -69,14 +80,13 @@ export async function getProductById(req, res, next) {
         const prod = await productService.getProductById(prodId);
 
         if (!prod) {
-            console.log("No se encontró el producto")
-            // return next(
-            //     CustomError.createError({
-            //         statusCode: 404,
-            //         causeKey: "PRODUCT_NOT_FOUND",
-            //         message: "No se encontró el producto"
-            //     })
-            // )
+            return next(
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PRODUCT_NOT_FOUND",
+                    message: "No se encontró el producto"
+                })
+            )
         }
         const productDetail = prod.toObject();
         res.render("prod", {
@@ -87,35 +97,32 @@ export async function getProductById(req, res, next) {
             cartId: cartId
         })
     } catch (error) {
-        console.error('Error al obtener el producto:', error);
         res.status(500).json({ error: 'Error al obtener el producto' });
     }
 }
 
 export async function createProduct(req, res, next) {
     try {
-        //este permiso esta bien? 
-        if (req.user.role === 'premium' || req.user.role === 'admin') {
-            const productData = { ...req.body, owner: req.user._id };
+        let user = req.session.user
+        if (user.role === 'premium' || user.role === 'admin') {
+            const productData = { ...req.body, owner: user._id };
             req.logger.debug("El body es:", req.body)
 
             if (!productData.name || !productData.description || !productData.price || !productData.category || !productData.stock || !productData.thumbnail) {
-                console.log("El producto no se ha podido crear")
-                // return next(
-                //     CustomError.createError({
-                //         statusCode: 404,
-                //         causeKey: "PRODUCT_NOT_CREATED",
-                //         message: "El producto no se ha podido crear"
-                //     })
-                // )
+                return next(
+                    CustomError.createError({
+                        statusCode: 404,
+                        causeKey: "PRODUCT_NOT_CREATED",
+                        message: "El producto no se ha podido crear"
+                    })
+                )
             }
             let result = await productService.addProduct(productData);
-            // res.send({ result: "success", payload: result })
+            let { name, description, price, category, stock, thumbnail, owner } = productData
 
-            res.render(confirmedProduct, { title: "Producto creado", product: result })
+            res.render("confirmedProduct", { title: "Producto creado", product: result, user: user, name, description, price, category, stock, thumbnail, owner })
         }
     } catch (error) {
-        console.error('Error al crear el producto:', error);
         res.status(500).json({ error: 'Error al crear el producto' });
     }
 }
@@ -123,26 +130,32 @@ export async function createProduct(req, res, next) {
 export async function updateProduct(req, res, next) {
     try {
         let { pid } = req.params;
-        // console.log("El pid es:", pid)
-
-        //esta bien llamado? esta diferente del de createProduct
         let productToReplace = req.body;
-        // console.log("El productToReplace es:", productToReplace)
-        if (!productToReplace.name || !productToReplace.description || !productToReplace.price || !productToReplace.category || !productToReplace.stock || !productToReplace.thumbnail) {
-            console.log("El producto no se ha podido actualizar")
+        const product = await productService.getProductById(pid);
+        if (!product) {
+            return res.status(404).send("Producto no encontrado");
+        }
+        let owner = product.owner;
+        let user = req.user;
+        let userId = user._id.toString();
 
-            // return next(
-            //     CustomError.createError({
-            //         statusCode: 404,
-            //         causeKey: "PRODUCT_NOT_UPDATED",
-            //         message: "El producto no se ha podido actualizar"
-            //     })
-            // )
+        if (owner !== userId && user.role !== "admin") {
+            return res.status(403).send("Acceso no autorizado. Este producto no te pertenece.");
+        }
+
+        if (!productToReplace.name || !productToReplace.description || !productToReplace.price || !productToReplace.category || !productToReplace.stock || !productToReplace.thumbnail) {
+
+            return next(
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PRODUCT_NOT_UPDATED",
+                    message: "El producto no se ha podido actualizar"
+                })
+            )
         }
         let result = await productService.updateProduct(pid, productToReplace);
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al actualizar el producto:', error);
         res.status(500).json({ error: 'Error al actualizar el producto' });
     }
 }
@@ -174,47 +187,44 @@ export async function deleteProduct(req, res, next) {
         }
         sendMail(mailOptions);
         if (!result) {
-            console.log("El producto no se ha podido eliminar")
-            // return next(
-            //     CustomError.createError({
-            //         statusCode: 404,
-            //         causeKey: "PRODUCT_NOT_DELETED",
-            //         message: "El producto no se ha podido eliminar"
-            //     })
-            // )
+            return next(
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PRODUCT_NOT_DELETED",
+                    message: "El producto no se ha podido eliminar"
+                })
+            )
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al eliminar el producto:', error);
         res.status(500).json({ error: 'Error al eliminar el producto' });
     }
 }
 
 export async function manageProducts(req, res, next) {
     try {
-        let limit = parseInt(req.query.limit) || 100; //MODIFICAR VISTA PARA QUE PUEDA CAMBIAR DE PAGE EL LIMIT DEBE SER 10
+        let limit = parseInt(req.query.limit) || 100;
         let page = parseInt(req.query.page) || 1;
         let sort = req.query.sort || "asc";
         let query = req.query.query || {};
         let allProducts = await productService.getProducts(limit, page, sort, query)
-        // console.log("El allProducts es:", allProducts)
 
         if (!allProducts) {
-            console.log("No se encontraron productos")
-            // return next(
-            //     CustomError.createError({
-            //         statusCode: 404,
-            //         causeKey: "PRODUCTS_NOT_FOUND",
-            //         message: "No se encontraron productos"
-            //     })
-            // )
+            return next(
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PRODUCTS_NOT_FOUND",
+                    message: "No se encontraron productos"
+                })
+            )
         }
-        let isAdmin;
-        let isAuthorized;
+
         let user = req.user;
         if (!user) {
             return res.redirect("/login")
         }
+        let isAdmin;
+        let isAuthorized;
         if (user.role === "admin") {
             isAdmin = true;
         }
@@ -227,10 +237,10 @@ export async function manageProducts(req, res, next) {
             title: "Gestión de Productos",
             products: allProducts,
             isAdmin,
-            isAuthorized
+            isAuthorized,
+            user: user
         })
     } catch (error) {
-        console.error('Error al obtener los productos:', error);
         res.status(500).json({ error: 'Error al obtener los productos' });
     }
 }

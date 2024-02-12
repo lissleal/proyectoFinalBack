@@ -1,7 +1,6 @@
 import cartModel from "../dao/mongo/cart.model.js"
 import productModel from "../dao/mongo/product.model.js"
 import ticketModel from "../dao/mongo/ticket.model.js"
-//Para generar el código único
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -76,13 +75,8 @@ class CartRepository extends cartModel {
             if (!cart) {
                 return "Cart not found";
             }
-            // const product = await productModel.findById(idProd);
 
-            // if (!product) {
-            //     return "Product not found";
-            // }
             const getProductsInCart = cart.products;
-
             const existingProduct = getProductsInCart.find((product) => product.productId.toString() === idProd.toString());
             if (existingProduct) {
                 return existingProduct;
@@ -183,41 +177,43 @@ class CartRepository extends cartModel {
         if (cartsOld && limit) return cartsOld.slice(0, limit)
     }
 
-    purchaseCart = async (idCart) => {
+    purchaseCart = async (idCart, deliveryData) => {
         try {
             const cart = await cartModel.findById(idCart);
-
-            //Corroborar que haya stock suficiente
-            const products = cart.products;
-            const productsNotAvailable = [];
-            const productsAvailable = [];
-            let amount = 0;
-
-            for (const product of products) {
-                const productToBuy = await productModel.findById(product.productId);
-
-                if (!productToBuy || productToBuy.stock < product.quantity) {
-                    productsNotAvailable.push(productToBuy);
-                    console.log("Not enough stock for product: ", productToBuy);
-                    // req.logger.error("Not enough stock for product: ", productToBuy);
-                } else {
-                    productsAvailable.push(productToBuy.name);
-                    productToBuy.stock = productToBuy.stock - product.quantity;
-                    amount = amount + productToBuy.price * product.quantity;
-                    await productToBuy.save();
-                }
-            };
 
             if (!cart) {
                 return "Cart not found";
             }
 
+            const productsNotAvailable = [];
+            const productsAvailable = [];
+            let amount = 0;
+
+            for (const cartProduct of cart.products) {
+                const productToBuy = await productModel.findById(cartProduct.productId);
+                if (!productToBuy || productToBuy.stock < cartProduct.quantity) {
+                    productsNotAvailable.push(cartProduct);
+                } else {
+                    productsAvailable.push({
+                        productId: productToBuy._id,
+                        quantity: cartProduct.quantity,
+                        name: productToBuy.name
+                    });
+                    productToBuy.stock -= cartProduct.quantity;
+                    await productToBuy.save();
+                    amount += productToBuy.price * cartProduct.quantity;
+                }
+            };
+
+
             //Crear ticket
             const ticket = new ticketModel({
                 code: uuidv4(),
                 amount: amount,
-                purchaser: cart.name,
+                purchaser: cart.userId,
                 products: productsAvailable,
+                deliveryAddress: deliveryData.deliveryAddress,
+                contactPhone: deliveryData.contactPhone
             })
             await ticket.save();
             //actualizar carrito dejando los que no pudieron comprarse

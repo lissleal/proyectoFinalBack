@@ -31,25 +31,24 @@
 </header>
 
 <main>
-  <div class="divProducto">
-    <h1>Subir Archivos</h1>
-    <h2>Usuario: {{user.nombre}}</h2>
-    <form
-      action="/api/users/:{{uid}}/documents"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <input type="hidden" name="uid" value="{{user._id}}" />
+  <h1>Subir Archivos</h1>
+  <h2>Usuario: {{user.name}}</h2>
+  <form
+    action="/api/users/:{{uid}}/documents"
+    method="post"
+    enctype="multipart/form-data"
+    class="formDocuments"
+  >
+    <input type="hidden" name="uid" value="{{user._id}}" />
 
-      <label for="identificacion">Selecciona un archivo</label>
-      <input type="file" name="documents" id="identificacion" required />
-      <label for="compDomicilio">Selecciona un archivo</label>
-      <input type="file" name="documents" id="compDomicilio" required />
-      <label for="estadoCuenta">Selecciona un archivo</label>
-      <input type="file" name="documents" id="estadoCuenta" required />
-      <button type="submit">Subir Archivo</button>
-    </form>
-  </div>
+    <label for="identificacion">Documento de Identidad</label>
+    <input type="file" name="documents" id="identificacion" required />
+    <label for="compDomicilio">Comprobante de Domicilio</label>
+    <input type="file" name="documents" id="compDomicilio" required />
+    <label for="estadoCuenta">Estado de Cuenta</label>
+    <input type="file" name="documents" id="estadoCuenta" required />
+    <button type="submit" class="boton">Subir Documentos</button>
+  </form>
 </main>
 
 <footer>

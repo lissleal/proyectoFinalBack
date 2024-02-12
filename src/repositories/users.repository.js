@@ -21,18 +21,12 @@ class UserRepository extends userModel {
 
     addUser = async (user) => {
         try {
-            // console.log("entre al adduser en userrEPOSITORY");
             const newUser = await userModel.create(user);
-            // console.log("New user en userservice:", newUser);
             const newCart = await cartModel.create({ userId: newUser._id, products: [] });
             newUser.cart = newCart._id;
-            // console.log("New cart en userservice:", newCart);
             await newUser.save();
-            // console.log("New user actualizado", newUser);
             return newUser;
         } catch (error) {
-            console.log("Error al agregar usuario en userservice: ", error);
-            // req.logger.error("Error al agregar usuario: ");
             return error;
         }
     }

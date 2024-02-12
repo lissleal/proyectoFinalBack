@@ -9,31 +9,23 @@ const userService = new UserService();
 
 const initializePassport = () => {
     passport.use("register", new LocalStrategy({ passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
-        // console.log("Registering user:", req.body);
 
         try {
             const { name, surname, email, role } = req.body;
-            // console.log(`User data: ${name}, ${surname}, ${email}, ${role}`);
             let user = await userService.findEmail({ email: username });
-            // console.log(`User en passport.use /register: ${user}`);
             if (user) {
-                console.log("User already exists");
                 return done(null, false, { message: "User already exists" });
             }
             const hashedPassword = await createHash(password);
-            // console.log("Hashed password:", hashedPassword);
             const newUser = { name, surname, email, password: hashedPassword, role };
-            // console.log("New user:", newUser);
             let result = await userService.addUser(newUser);
             return done(null, result);
         } catch (error) {
-            // console.log("Error registering user:", error);
             return done("Error getting the user", error);
         }
     }))
 
     passport.serializeUser((user, done) => {
-        // console.log("Serializing user:", user);
         done(null, user._id);
     })
     passport.deserializeUser(async (id, done) => {
@@ -48,20 +40,20 @@ const initializePassport = () => {
     passport.use("login", new LocalStrategy({ usernameField: "email" }, async (username, password, done) => {
         try {
             const user = await userService.findEmail({ email: username });
-            console.log("User found:", user); //CAMBIAR POR LOGGER
+            console.log("User found:", user);
 
             if (!user) {
                 return done(null, false, { message: "User not found" });
             }
             const isValid = await isValidPassword(user, password);
-            console.log("Password validation result:", isValid); //CAMBIAR POR LOGGER
+            console.log("Password validation result:", isValid);
 
             if (!isValid) {
                 return done(null, false, { message: "Wrong password" });
             }
             user.last_connection = new Date();
             await userService.updateUser(user._id, user);
-            console.log("Login successful. Authenticated user"); //CAMBIAR POR LOGGER
+            console.log("Login successful. Authenticated user");
             return done(null, user);
         } catch (error) {
             console.error("Error in login strategy:", error);
@@ -81,7 +73,6 @@ const initializePassport = () => {
 
             if (email && email.length > 0) {
                 let user = await userService.findEmail({ email: email });
-                console.log(`User en passport.use /github: ${user}`);
 
                 if (!user) {
 
@@ -91,7 +82,6 @@ const initializePassport = () => {
                         password: "",
                         role: "admin"
                     }
-                    let newUserJson = JSON.stringify(newUser);
 
                     let result = await userService.addUser(newUser);
                     return done(null, result);

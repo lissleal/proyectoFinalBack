@@ -31,30 +31,31 @@
 </header>
 
 <main>
-<h1>Lista de productos</h1>
-<h2>Bienvenido {{user.name}} {{user.surname}}</h2>
-<p>Su nivel de autorización es: {{user.role}}</>
+  <h1>Lista de productos</h1>
+  <h2>Bienvenido {{user.name}} {{user.surname}}</h2>
 
-<div class="headerMain">
-<a href="/addProducts" class="boton">Agregar otro producto</a>
-<a href="/api/products/manageProducts" class="boton">Administrar Productos</a>
-</div>
-<div class="productsContain">
-{{#each products}}
-  <div class="divProducto">
-    <img src={{this.thumbnail}} alt="" />
-    <div class="productDescription">
-    <h2>{{this.name}}</h2>
-    {{!-- <p>{{this._id}}</p> --}}
-    <p>Autor: {{this.description}} </p>
-    <p>Precio:  ${{this.price}} </p>
-    {{!-- <p>Categoria: {{this.category}} </p> --}}
-    <p>Stock: {{this.stock}} </p>
-    </div>
-    <a href="/api/products/{{this._id}}" class="boton"><h3>Ver producto</h3></a>
+  <div class="headerMain">
+
+    {{#if isAuthorized}}
+      <a href="/addProducts" class="boton">Agregar otro producto</a>
+      <a href="/api/products/manageProducts" class="boton">Administrar Productos</a>
+    {{/if}}
+
   </div>
-{{/each}}
-</div>
+  <div class="productsContain">
+    {{#each products}}
+      <div class="divProducto">
+        <img src={{this.thumbnail}} alt="" />
+        <div class="productDescription">
+          <h2>{{this.name}}</h2>
+          <p>Autor: {{this.description}} </p>
+          <p>Precio: ${{this.price}} </p>
+          <p>Stock: {{this.stock}} </p>
+        </div>
+        <a href="/api/products/{{this._id}}" class="boton"><h3>Ver producto</h3></a>
+      </div>
+    {{/each}}
+  </div>
 </main>
 <footer>
   <p>Lissett Leal 2024</p>

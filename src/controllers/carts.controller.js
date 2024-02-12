@@ -3,9 +3,7 @@ import ProductService from '../services/ProductService.js';
 const cartService = new CartService();
 const productService = new ProductService();
 import mailer from '../config/nodemailer.js';
-import CustomError from '../config/CustomError.js';
-import loggerMiddleware from '../loggerMiddleware.js';
-import { format } from 'winston';
+import CustomError from '../config/customError.js';
 
 const { sendMail } = mailer;
 
@@ -26,7 +24,7 @@ export async function getCarts(req, res, next) {
         res.send({ result: "success", payload: carts })
     }
     catch (error) {
-        req.logger.error("Cannot get carts with mongoose: ", error);
+        res.status(500).json({ error: 'Error al obtener los carritos' });
     }
 }
 
@@ -62,7 +60,6 @@ export async function getCart(req, res, next) {
             user: user
         });
     } catch (error) {
-        console.error('Error al obtener el carrito:', error);
         res.status(500).json({ error: 'Error al obtener el carrito' });
     }
 }
@@ -147,30 +144,30 @@ export async function getProductsInCart(req, res, next) {
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al obtener el producto:', error);
         res.status(500).json({ error: 'Error al obtener el producto' });
     }
 }
 
 //Agrega producto al carrito
 export async function addProductInCart(req, res, next) {
-    const cartId = req.params.cid;
-    const productId = req.params.pid;
-    const quantity = req.body.quantity;
-    const user = req.user;
-
-    const product = await productService.getProductById(productId);
-    const existProductInCart = await cartService.existProductInCart(cartId, productId);
-
-    if (!product) {
-        return res.status(404).send("Producto no encontrado");
-    }
-
-    if (product.owner === user.email) {
-        return res.status(403).send("Este producto te pertenece, no puedes agregarlo a tu carro.");
-    }
-
     try {
+
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+        const quantity = req.body.quantity;
+        const user = req.user;
+        const product = await productService.getProductById(productId);
+        if (!product) {
+            res.status(404).send("Producto no encontrado");
+            return;
+        }
+
+        if (product.owner.toString() === user._id.toString()) {
+            res.send("Este producto te pertenece, no puedes agregarlo a tu carro.");
+            return;
+        }
+
+        const existProductInCart = await cartService.existProductInCart(cartId, productId);
         let result;
         if (existProductInCart) {
             result = await cartService.updateQuantityOfProduct(cartId, productId, quantity);
@@ -189,7 +186,6 @@ export async function addProductInCart(req, res, next) {
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al agregar el producto:', error);
         res.status(500).json({ error: 'Error al agregar el producto' });
     }
 }
@@ -213,7 +209,6 @@ export async function updateQuantityOfProduct(req, res, next) {
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al actualizar el producto:', error);
         res.status(500).json({ error: 'Error al actualizar el producto' });
     }
 }
@@ -236,38 +231,37 @@ export async function deleteProductInCart(req, res, next) {
         }
         res.send({ result: "success", payload: result })
     } catch (error) {
-        console.error('Error al eliminar el producto:', error);
         res.status(500).json({ error: 'Error al eliminar el producto' });
     }
-
 }
 
 //Finaliza la compra
-
 export async function purchaseCart(req, res, next) {
-    let cartId = req.params.cid;
+    let cartId = req.session.cartId;
+    let contactPhone = req.body.contactPhone;
+    let deliveryAddress = req.body.deliveryAddress;
+    let deliveryData = { contactPhone, deliveryAddress };
     try {
-        const result = await cartService.purchaseCart(cartId);
-
-        // console.log("El result en cartcontroller es", result);
-        console.log("El user es ", req.user)
+        const result = await cartService.purchaseCart(cartId, deliveryData);
         const ticket = result.ticket;
-        const productsBuyed = ticket.products.map(product => product.name);
-        // console.log("Los productos comprados son:", productsBuyed)
+        let productsBuyed = ticket.products.map(product => product.name);
         const cart = result.cart;
-        const productsNotAvailable = cart.products.map(product => product.name) || "Todos los productos disponibles";
-        const user = req.user;
-        const email = user.email;
 
+        let productsNotAvailable;
+        if (cart.products.length === 0) {
+            productsNotAvailable = "Todos los productos disponibles";
+        } else {
+            productsNotAvailable = cart.products.map(product => product.name);
+        } const user = req.user;
+        const email = user.email;
 
         if (!result) {
             return next(
-                // CustomError.createError({
-                //     statusCode: 404,
-                //     causeKey: "PURCHASE_ERROR",
-                //     message: "Error en la compra"
-                // })
-                console.log('Error al realizar la compra:')
+                CustomError.createError({
+                    statusCode: 404,
+                    causeKey: "PURCHASE_ERROR",
+                    message: "Error en la compra"
+                })
             )
         }
         const emailOptions = {
@@ -279,8 +273,8 @@ export async function purchaseCart(req, res, next) {
             <p>Productos: ${productsBuyed}</p>
             <p>Monto: ${ticket.amount}</p>
             
-            <p>Direccion de Entrega: ${cart.address}</p>
-            <p>Telefono de contacto: ${cart.phone}</p>
+            <p>Direccion de Entrega: ${ticket.deliveryAddress}</p>
+            <p>Telefono de contacto: ${ticket.contactPhone}</p>
             <p>Productos no incluidos: ${productsNotAvailable}</p>
             <p>Gracias por su compra</p>
             `
@@ -288,14 +282,16 @@ export async function purchaseCart(req, res, next) {
         await sendMail(emailOptions);
         return res.render("confirmedPurchase", {
             title: "Compra realizada",
-            ticket: ticket,
+            ticket: ticket.code,
             productsBuyed: productsBuyed,
             productsNotAvailable: productsNotAvailable,
-            cart: cart
+            amount: ticket.amount,
+            deliveryAddress: ticket.deliveryAddress,
+            contactPhone: ticket.contactPhone,
+            user: user
         });
 
     } catch (error) {
-        console.error('Error al realizar la compra:', error);
         res.status(500).json({ error: 'Error al realizar la compra' });
     }
 }

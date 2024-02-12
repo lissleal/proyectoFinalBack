@@ -7,11 +7,8 @@ import bcrypt from "bcrypt"
 export const createHash = password => bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 export const isValidPassword = (user, password) => {
     try {
-        // console.log("Password from user:", user.password);
-        // console.log("Provided password:", password);
         return bcrypt.compareSync(password, user.password);
     } catch (error) {
-        console.error("Error in isValidPassword:", error);
         return false;
     }
 }
@@ -20,7 +17,6 @@ export const comparePasswords = (newPassword, oldPassword) => {
     try {
         return bcrypt.compareSync(newPassword, oldPassword);
     } catch (error) {
-        console.error("Error in comparePasswords:", error);
         return false;
     }
 }

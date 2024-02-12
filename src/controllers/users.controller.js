@@ -4,6 +4,7 @@ import { createHash, comparePasswords } from "../utils.js";
 import mailer from "../config/nodemailer.js";
 import jwt from "jsonwebtoken";
 import generatePasswordResetToken from "../config/token.js";
+import CustomError from "../config/customError.js";
 
 const { sendMail } = mailer;
 const userService = new UserService();
@@ -53,11 +54,9 @@ export async function loginUser(req, res) {
 
 export async function logoutUser(req, res) {
     try {
-        // console.log("Entra en logoutUser")
         let user = req.session.user
         user.last_connection = new Date();
         await userService.updateUser(user._id, user);
-        // console.log("User logged out:", user.name + " ultima conexion: " + user.last_connection);
         req.session.destroy()
         res.redirect("/login")
     } catch (error) {
@@ -163,16 +162,18 @@ export async function changeRole(req, res) {
         let updatedUser;
         const documents = user.documents;
         const cantidadDocumentos = documents.length;
+
+        if (cantidadDocumentos < 3) {
+            return res.redirect("/documents");
+        }
         const role = user.role;
         if (role === "user" && cantidadDocumentos >= 3) {
             updatedUser = { role: "premium" };
             req.session.user.role = "premium";
-            // console.log("El usuario actualizado en session es ", req.session.user.role);
         }
         else {
             updatedUser = { role: "user" };
             req.session.user.role = "user";
-            // console.log("El usuario actualizado en session es ", req.session.user.role);
 
         }
         await userService.updateUser(uid, updatedUser);
@@ -186,12 +187,10 @@ export async function uploadDocuments(req, res) {
     if (!req.files) {
         return res.status(400).send({ status: "error", message: "No se ha subido ningún archivo" });
     }
-    // console.log("Los archivos son ", req.files);
     let user = req.session.user;
-    // console.log("El usuario es ", user);
     user.documents = req.files;
     await userService.updateUser(user._id, user);
-    res.send({ status: "success", message: "Archivos subidos correctamente" });
+    res.redirect("/api/users/profile");
 }
 
 export async function requestAllUsers(req, res) {
@@ -218,7 +217,6 @@ export async function requestAllUsers(req, res) {
 export async function deleteOldUsers(req, res) {
     try {
         const users = await userService.getUsers();
-        // console.log("Entre a deleteOldUsers");
         if (!users) {
             return res.status(404).json("No se encontraron usuarios");
         }
@@ -243,7 +241,6 @@ export async function deleteOldUsers(req, res) {
                 html: `<p>Estimado usuario, su cuenta ha sido eliminada por inactividad</p>`
             };
             await sendMail(emailOptions);
-            // console.log("El usuario con email ", email, " ha sido eliminado");
         });
         const ids = oldUsers.map(user => user._id);
         await userService.deleteUser(ids);

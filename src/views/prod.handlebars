@@ -17,7 +17,6 @@
           <a href="/api/users/logout">Cerrar sesión</a>
         </li>
         <li>
-
           <a href="/api/carts/{{cartId}}"><i
               class="fa-solid fa-cart-shopping"
             ></i></a>
@@ -45,14 +44,13 @@
       <p>Carrito: {{cartId}}</p>
 
       {{#if user}}
-
         <div class="botonesCantidad">
           <button id="disminuyeCantidad" class="boton">-</button>
           <p id="cantidad">0</p>
           <button id="incrementoCantidad" class="boton">+</button>
         </div>
         <button id="addToCart" class="boton">Añadir a Carrito</button>
-
+        <button id="removeFromCart" class="boton">Eliminar del Carrito</button>
       {{/if}}
     </div>
   </div>
@@ -87,7 +85,8 @@
   document.getElementById("incrementoCantidad"); let disminuyeCantidad =
   document.getElementById("disminuyeCantidad"); let cantidad =
   document.getElementById("cantidad"); let cartId = "{{cartId}}"; let addToCart
-  = document.getElementById("addToCart"); let cantidadProducto = 0;
+  = document.getElementById("addToCart"); let removeFromCart =
+  document.getElementById("removeFromCart"); let cantidadProducto = 0;
   incrementoCantidad.addEventListener("click", () => { if (cantidadProducto <
   {{product.stock}}) { cantidadProducto++; cantidad.textContent =
   cantidadProducto; } }); disminuyeCantidad.addEventListener("click", () => { if
@@ -98,5 +97,9 @@
   { "Content-Type": "application/json" }, body: JSON.stringify({ quantity,
   productId }), }) .then((res) => res.json()) .then((data) => {
   console.log(data); cantidadProducto = 0; cantidad.textContent =
-  cantidadProducto; }) .catch((err) => console.log(err)); }); });
+  cantidadProducto; }) .catch((err) => console.log(err)); });
+  removeFromCart.addEventListener("click", () => { const productId = "{{product._id}}";
+  fetch(`/api/carts/${cartId}/products/${productId}`, { method: "DELETE", })
+  .then((res) => res.json()) .then((data) => { console.log(data); })
+  .catch((err) => console.log(err)); }); });
 </script>
