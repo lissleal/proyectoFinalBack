@@ -24,7 +24,7 @@ import UserRouter from "./router/user.routes.js";
 
 //Creación de la aplicación Express y servidor HTTP:
 const app = express()
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 //Conexión a MongoDB:
 

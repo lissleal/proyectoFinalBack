@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "build": "npm install --omit=dev",
+    "dev": "nodemon src/index.js",
     "test": "mocha test/*.js"
   },
   "keywords": [],
