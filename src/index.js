@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'));
 app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
-//Middleware de logger:
+//Middleware de logger :
 app.use(loggerMiddleware)
 
 //Estructura handlebars
