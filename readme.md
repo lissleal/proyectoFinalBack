@@ -48,7 +48,7 @@ npm start
 
 ## Rutas para interactuar con postman
 
-# Agregar Producto
+# Agregar Productos
 
 Ruta POST
 http://localhost:8080/api/products
